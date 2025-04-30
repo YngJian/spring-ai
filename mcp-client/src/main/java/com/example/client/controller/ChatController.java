@@ -2,6 +2,8 @@ package com.example.client.controller;
 
 import com.example.client.util.MarkdownUtil;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +17,14 @@ public class ChatController {
     private ChatClient chatClient;
 
     public ChatController(ChatClient.Builder chatClientBuilder,
-                          ToolCallbackProvider toolCallbackProvider) {
+                          ToolCallbackProvider toolCallbackProvider, ChatMemory chatMemory) {
         this.chatClient = chatClientBuilder
                 .defaultSystem("你是一个图书管理助手，可以帮助用户查询图书信息。" +
                         "你可以根据书名模糊查询、根据作者查询和根据分类查询图书。" +
                         "回复时，请使用简洁友好的语言，并将图书信息整理为易读的格式。")
                 // 注册工具方法
                 .defaultTools(toolCallbackProvider)
+                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory))
                 .build();
     }
 
@@ -32,6 +35,9 @@ public class ChatController {
     public String chat(@RequestParam String message) {
         // 使用API调用聊天
         String content = chatClient.prompt()
+                .advisors(advisorSpec ->
+                        advisorSpec
+                                .param("chat_memory_conversation_id", 12345))
                 .user(message)
                 .call()
                 .content();
