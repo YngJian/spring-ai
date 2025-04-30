@@ -1,0 +1,21 @@
+server:
+  port: 8082
+spring:
+  http:
+    client:
+      connect-timeout: 30s
+      read-timeout: 120s
+  ai:
+    openai:
+      api-key: token-abc123
+      base-url: http://127.0.0.1:8089
+      chat:
+        options:
+          model: qwen3
+#    mcp:
+#      client:
+#        sse:
+#          connections:
+#            server1:
+#              url: http://localhost:8081
+
